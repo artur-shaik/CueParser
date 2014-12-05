@@ -99,7 +99,7 @@ class CueSheet():
         if self.file:
             ret = ret.replace("%file%", self.file)
         if self.aformat:
-            ret = ret.replace("%aformat%", self.aformat)
+            ret = ret.replace("%format%", self.aformat)
 
         trackOutput = ""
         for track in self.tracks:

@@ -22,7 +22,7 @@ optional arguments:
 
 Example
 =======
-
+https://github.com/artur-shaik/CueParser/edit/master/README.md#
 `cueparser.py file.cue`
 
 will output content with such template:
@@ -32,7 +32,7 @@ will output content with such template:
 Library example
 ===============
 
-```
+```python
     cuesheet = CueSheet()
     cuesheet.setOutputFormat(args.header, args.track)
     with open(cuefile, "r") as f:

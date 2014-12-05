@@ -22,7 +22,6 @@ optional arguments:
 
 Example
 =======
-https://github.com/artur-shaik/CueParser/edit/master/README.md#
 `cueparser.py file.cue`
 
 will output content with such template:

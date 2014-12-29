@@ -5,6 +5,8 @@ import sys
 import os
 import re
 import argparse
+import math
+from datetime import timedelta
 
 class CueSheet():
 
@@ -58,7 +60,15 @@ class CueSheet():
         match = re.match('^TRACK.*$', line)
         if match:
             cuetrack = CueTrack()
+            cuetrack.setOutputFormat(self.trackOutputFormat)
+            cuetrack.number = len(self.tracks) + 1
             self.track(cuetrack)
+            if len(self.tracks) > 0:
+                previous = self.tracks[len(self.tracks) - 1]
+                offset = offsetToTimedelta(cuetrack.offset)
+                previosOffset = offsetToTimedelta(previous.offset)
+                previous.duration = offset - previosOffset
+
             self.tracks.append(cuetrack)
 
         self.parse()
@@ -91,6 +101,20 @@ class CueSheet():
         self.trackOutputFormat = trackOutputFormat
 
     def output(self):
+        return self.__repr__()
+
+    def getTrackByNumber(self, number):
+        if self.tracks[number - 1]: return self.tracks[number - 1]
+        return None
+
+    def getTrackByTime(self, time):
+        for track in reversed(self.tracks):
+            trackOffset = offsetToTimedelta(track.offset)
+            if time > trackOffset: return track
+
+        return None
+
+    def __repr__(self):
         ret = self.outputFormat
         if self.performer:
             ret = ret.replace("%performer%", self.performer)
@@ -109,14 +133,6 @@ class CueSheet():
         ret = ret.replace("%tracks%", trackOutput)
         return ret
 
-    def __repr__(self):
-        header = "Title: %s - %s\nFile name: %s\nFile format: %s\n" % (self.performer, self.title, self.file, self.aformat)
-        body = ""
-        for line in self.tracks:
-            body += "%sn" % line
-
-        return "%s%s" % (header, body)
-
 class CueTrack():
     def __init__(self):
         self.performer = None
@@ -124,11 +140,16 @@ class CueTrack():
         self.index = None
         self.offset = None
         self.outputFormat = None
+        self.duration = None
+        self.number = None
 
     def setOutputFormat(self, outputFormat):
         self.outputFormat = outputFormat
 
     def output(self):
+        return self.__repr__();
+
+    def __repr__(self):
         ret = self.outputFormat
         if self.performer:
             ret = ret.replace("%performer%", self.performer)
@@ -138,16 +159,36 @@ class CueTrack():
             ret = ret.replace("%index%", self.index)
         if self.offset:
             ret = ret.replace("%offset%", self.offset)
+        if self.number:
+            ret = ret.replace("%number%", "%s" % self.number)
+        if self.duration:
+            minutes = math.floor(self.duration.seconds / 60)
+            ret = ret.replace("%duration%", "%02d:%02d" % (minutes, self.duration.seconds - 60 * minutes));
+        else:
+            ret = ret.replace("%duration%", "")
 
         return ret
 
-    def __repr__(self):
-        return "%s - %s\t %s\n" % (self.performer, self.title, self.offset)
+def offsetToTimedelta(offset):
+    offset = offset.split(':')
+    if len(offset) == 1:
+        offset = timedelta(minutes=int(offset[0]))
+    elif len(offset) == 2:
+        offset = timedelta(minutes=int(offset[0]), seconds=int(offset[1]))
+    elif len(offset) == 3:
+        if len(offset[2]) < 3: offset[2] += "0"
+        offset = timedelta(minutes=int(offset[0]), seconds=int(offset[1]), milliseconds=int(offset[2]))
+    else:
+        print("Wrong offset value")
+        exit()
+    return offset
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument( "-H", "--header", help="header output template", default="%performer% - %title%\n%file%\n%tracks%" )
     parser.add_argument( "-t", "--track", help="track output template", default="%performer% - %title%" )
+    parser.add_argument( "-o", "--offset", help="fetch offset's track" )
+    parser.add_argument( "-n", "--number", help="fetch track by number" )
     parser.add_argument( "file", help="path to cue file" )
     args = parser.parse_args();
 
@@ -162,7 +203,18 @@ def main():
         cuesheet.setData(f.read())
 
     cuesheet.parse()
-    print(cuesheet.output())
+    try:
+        if (args.offset):
+            offset = offsetToTimedelta(args.offset)
+            print(cuesheet.getTrackByTime(offset))
+        elif (args.number):
+            num = int(args.number)
+            print(cuesheet.getTrackByNumber(num))
+        else:
+            print(cuesheet.output())
+    except ValueError:
+        print("Cannot parse int")
+        exit()
 
 if __name__ == '__main__':
     main()

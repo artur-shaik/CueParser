@@ -11,7 +11,9 @@ from datetime import timedelta
 class CueSheet():
 
     def __init__(self):
+        self.rem = None
         self.performer = None
+        self.songwriter = None
         self.title = None
         self.file = None
         self.aformat = None
@@ -38,10 +40,26 @@ class CueSheet():
         if not line:
             return
 
+        if not self.rem:
+            match = re.match('^REM .(.*).$', line)
+            rem_tmp = ''
+            while match:
+                rem_tmp += match.group(0) +'\n'
+                line = self.next()
+                match = re.match('^REM .(.*).$', line)
+            if rem_tmp:
+                self.rem = rem_tmp.strip()
+        
         if not self.performer:
             match = re.match('^PERFORMER .(.*).$', line)
             if match:
                 self.performer = match.group(1)
+                line = self.next()
+
+        if not self.songwriter:
+            match = re.match('^SONGWRITER .(.*).$', line)
+            if match:
+                self.songwriter = match.group(1)
                 line = self.next()
 
         if not self.title:
@@ -83,9 +101,24 @@ class CueSheet():
             track.performer = match.group(1)
             self.track(track)
 
+        match = re.match('^SONGWRITER .(.*).$', line)
+        if match:
+            track.songwriter = match.group(1)
+            self.track(track)
+
         match = re.match('^TITLE .(.*).$', line)
         if match:
             track.title = match.group(1)
+            self.track(track)
+
+        match = re.match('^FLAGS .(.*).$', line)
+        if match:
+            track.flags = match.group(1)
+            self.track(track)
+
+        match = re.match('^ISRC .(.*).$', line)
+        if match:
+            track.ISRC = match.group(1)
             self.track(track)
 
         match = re.match('^INDEX (.*) (.*)$', line)
@@ -116,8 +149,12 @@ class CueSheet():
 
     def __repr__(self):
         ret = self.outputFormat
+        if self.rem:
+            ret = ret.replace("%rem%", self.rem)
         if self.performer:
             ret = ret.replace("%performer%", self.performer)
+        if self.songwriter:
+            ret = ret.replace("%songwriter%", self.songwriter)
         if self.title:
             ret = ret.replace("%title%", self.title)
         if self.file:
@@ -136,7 +173,10 @@ class CueSheet():
 class CueTrack():
     def __init__(self):
         self.performer = None
+        self.songwriter = None
         self.title = None
+        self.flags = None
+        self.isrc = None
         self.index = None
         self.offset = None
         self.outputFormat = None
@@ -153,6 +193,8 @@ class CueTrack():
         ret = self.outputFormat
         if self.performer:
             ret = ret.replace("%performer%", self.performer)
+        if self.songwriter:
+            ret = ret.replace("%songwriter%", self.songwriter)
         if self.title:
             ret = ret.replace("%title%", self.title)
         if self.index:
@@ -160,7 +202,7 @@ class CueTrack():
         if self.offset:
             ret = ret.replace("%offset%", self.offset)
         if self.number:
-            ret = ret.replace("%number%", "%s" % self.number)
+            ret = ret.replace("%number%", "%02d" % self.number)
         if self.duration:
             minutes = math.floor(self.duration.seconds / 60)
             ret = ret.replace("%duration%", "%02d:%02d" % (minutes, self.duration.seconds - 60 * minutes));

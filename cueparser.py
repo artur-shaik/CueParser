@@ -178,6 +178,7 @@ class CueTrack():
         self.flags = None
         self.isrc = None
         self.index = None
+
         self.offset = None
         self.outputFormat = None
         self.duration = None

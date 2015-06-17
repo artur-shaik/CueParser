@@ -242,8 +242,8 @@ def main():
 
     cuesheet = CueSheet()
     cuesheet.setOutputFormat(args.header, args.track)
-    with open(cuefile, "r") as f:
-        cuesheet.setData(f.read())
+    with open(cuefile, "rb") as f:
+        cuesheet.setData(f.read().decode('latin-1'))
 
     cuesheet.parse()
     try:

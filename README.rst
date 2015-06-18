@@ -4,6 +4,11 @@ CueParser
 Simple cue file parser written in python. Outputs cue file content in
 plain text. Can be used as a library.
 
+Installation
+============
+
+**$ pip install CueParser**
+
 Usage
 =====
 

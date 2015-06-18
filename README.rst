@@ -1,13 +1,15 @@
 CueParser
 =========
 
-Simple cue file parser written in python. Outputs cue file content in plain text. Can be used as a library.
+Simple cue file parser written in python. Outputs cue file content in
+plain text. Can be used as a library.
 
 Usage
 =====
 
-.. code::
-    usage: cueparser.py [-h] [-H HEADER] [-t TRACK] file
+.. code:: usage: cueparser.py [-h] [-H HEADER] [-t TRACK] file
+
+::
 
     positional arguments:
       file                  path to cue file
@@ -21,20 +23,22 @@ Usage
 
 Example
 =======
+
 **$ cueparser.py file.cue**
 
-will output content with such template:
-* for header: %performer% - %title%\n%file%\n%tracks% (also can be %format%, %rem%, %songwriter%)
-* for tracks: %performer% - %title% (also can be %offset%, %index%, %songwriter%)
+will output content with such template: \* for header: %performer% -
+%title%%file%%tracks% (also can be %format%, %rem%, %songwriter%) \* for
+tracks: %performer% - %title% (also can be %offset%, %index%,
+%songwriter%)
 
 Library example
 ===============
 
-.. code:: python
-    cuesheet = CueSheet()
-    cuesheet.setOutputFormat(args.header, args.track)
-    with open(cuefile, "r") as f:
-        cuesheet.setData(f.read())
+.. code:: python cuesheet = CueSheet()
+cuesheet.setOutputFormat(args.header, args.track) with open(cuefile,
+"r") as f: cuesheet.setData(f.read())
+
+::
 
     cuesheet.parse()
     print(cuesheet.output())

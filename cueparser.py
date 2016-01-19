@@ -11,6 +11,14 @@ from datetime import timedelta
 
 class CueSheet():
 
+    _fields = [
+        "performer",
+        "songwriter",
+        "title",
+        "flags",
+        "isrc"
+    ]
+
     def __init__(self):
         self.rem = None
         self.performer = None
@@ -52,23 +60,12 @@ class CueSheet():
             if rem_tmp:
                 self.rem = rem_tmp.strip()
 
-        if not self.performer:
-            match = re.match('^PERFORMER .(.*).$', line)
-            if match:
-                self.performer = match.group(1)
-                line = self.next()
-
-        if not self.songwriter:
-            match = re.match('^SONGWRITER .(.*).$', line)
-            if match:
-                self.songwriter = match.group(1)
-                line = self.next()
-
-        if not self.title:
-            match = re.match('^TITLE .(.*).$', line)
-            if match:
-                self.title = match.group(1)
-                line = self.next()
+        for field in ["performer", "songwriter", "title"]:
+            if not getattr(self, field):
+                match = re.match("^{} .(.*).$".format(field.upper()), line)
+                if match:
+                    setattr(self, field, match.group(1))
+                    line = self.next()
 
         if not self.file:
             match = re.match('^FILE .(.*). (.*)$', line)
@@ -98,30 +95,11 @@ class CueSheet():
         if not line:
             return
 
-        match = re.match('^PERFORMER .(.*).$', line)
-        if match:
-            track.performer = match.group(1)
-            self.track(track)
-
-        match = re.match('^SONGWRITER .(.*).$', line)
-        if match:
-            track.songwriter = match.group(1)
-            self.track(track)
-
-        match = re.match('^TITLE .(.*).$', line)
-        if match:
-            track.title = match.group(1)
-            self.track(track)
-
-        match = re.match('^FLAGS .(.*).$', line)
-        if match:
-            track.flags = match.group(1)
-            self.track(track)
-
-        match = re.match('^ISRC .(.*).$', line)
-        if match:
-            track.ISRC = match.group(1)
-            self.track(track)
+        for field in CueSheet._fields:
+            match = re.match("^{} .(.*).$".format(field.upper()), line)
+            if match:
+                setattr(track, field, match.group(1))
+                self.track(track)
 
         match = re.match('^INDEX (.*) (.*)$', line)
         if match:
@@ -150,18 +128,9 @@ class CueSheet():
 
     def __repr__(self):
         ret = self.outputFormat
-        if self.rem:
-            ret = ret.replace("%rem%", self.rem)
-        if self.performer:
-            ret = ret.replace("%performer%", self.performer)
-        if self.songwriter:
-            ret = ret.replace("%songwriter%", self.songwriter)
-        if self.title:
-            ret = ret.replace("%title%", self.title)
-        if self.file:
-            ret = ret.replace("%file%", self.file)
-        if self.aformat:
-            ret = ret.replace("%format%", self.aformat)
+        for field in CueSheet._fields:
+            if getattr(self, field):
+                ret = ret.replace("%{}%".format(field), getattr(self, field))
 
         trackOutput = ""
         for track in self.tracks:
@@ -173,6 +142,15 @@ class CueSheet():
 
 
 class CueTrack():
+
+    _fields = [
+        "performer",
+        "songwriter",
+        "title",
+        "index",
+        "offset"
+    ]
+
     def __init__(self):
         self.performer = None
         self.songwriter = None
@@ -194,16 +172,11 @@ class CueTrack():
 
     def __repr__(self):
         ret = self.outputFormat
-        if self.performer:
-            ret = ret.replace("%performer%", self.performer)
-        if self.songwriter:
-            ret = ret.replace("%songwriter%", self.songwriter)
-        if self.title:
-            ret = ret.replace("%title%", self.title)
-        if self.index:
-            ret = ret.replace("%index%", self.index)
-        if self.offset:
-            ret = ret.replace("%offset%", self.offset)
+
+        for field in CueTrack._fields:
+            if getattr(self, field):
+                ret = ret.replace("%{}%".format(field), getattr(self, field))
+
         if self.number:
             ret = ret.replace("%number%", "%02d" % self.number)
         if self.duration:

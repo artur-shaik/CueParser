@@ -246,7 +246,6 @@ def main():
 
 
 def print_all_tracks(cuesheet, i=0):
-    print("{0} tracks".format(len(cuesheet.tracks)))
     for track in cuesheet.tracks:
         i += 1
         print("{}: {}".format(i, track))

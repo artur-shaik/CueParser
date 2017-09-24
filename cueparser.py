@@ -34,7 +34,7 @@ class CueSheet():
     def setData(self, data):
         self.data = data.split('\n')
 
-    def next(self):
+    def __next__(self):
         if self.iterator < len(self.data):
             ret = self.data[self.iterator]
             self.iterator += 1
@@ -45,7 +45,7 @@ class CueSheet():
         self.iterator -= 1
 
     def parse(self):
-        line = self.next()
+        line = next(self)
         if not line:
             return
 
@@ -55,7 +55,7 @@ class CueSheet():
             while match:
                 # TODO: maybe os.linesep
                 rem_tmp += match.group(0) + '\n'
-                line = self.next()
+                line = next(self)
                 match = re.match('^REM .(.*).$', line)
             if rem_tmp:
                 self.rem = rem_tmp.strip()
@@ -65,14 +65,14 @@ class CueSheet():
                 match = re.match("^{} .(.*).$".format(field.upper()), line)
                 if match:
                     setattr(self, field, match.group(1))
-                    line = self.next()
+                    line = next(self)
 
         if not self.file:
             match = re.match('^FILE .(.*). (.*)$', line)
             if match:
                 self.file = match.group(1)
                 self.aformat = match.group(2)
-                line = self.next()
+                line = next(self)
 
         match = re.match('^TRACK.*$', line)
         if match:
@@ -91,7 +91,7 @@ class CueSheet():
         self.parse()
 
     def track(self, track):
-        line = self.next()
+        line = next(self)
         if not line:
             return
 
@@ -232,14 +232,14 @@ def main():
     try:
         if (args.offset):
             offset = offsetToTimedelta(args.offset)
-            print(cuesheet.getTrackByTime(offset))
+            print((cuesheet.getTrackByTime(offset)))
         elif (args.number):
             num = int(args.number)
-            print(cuesheet.getTrackByNumber(num))
+            print((cuesheet.getTrackByNumber(num)))
         elif (args.all):
             print_all_tracks(cuesheet)
         else:
-            print(cuesheet.output())
+            print((cuesheet.output()))
     except ValueError:
         print("Cannot parse int")
         exit()

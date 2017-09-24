@@ -220,7 +220,7 @@ def main():
 
     cuefile = args.file
     if not os.path.isfile(cuefile):
-        print(("Cannot open file %s" % cuefile))
+        print("Cannot open file %s" % cuefile)
         exit(2)
 
     cuesheet = CueSheet()
@@ -248,7 +248,7 @@ def main():
 def print_all_tracks(cuesheet, i=0):
     for track in cuesheet.tracks:
         i += 1
-        print(("{}: {}".format(i, track)))
+        print("{}: {}".format(i, track))
 
 if __name__ == '__main__':
     main()

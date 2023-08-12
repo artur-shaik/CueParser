@@ -7,6 +7,7 @@ import sys
 import argparse
 import math
 from datetime import timedelta
+from typing import Optional
 
 
 class CueSheet():
@@ -19,6 +20,8 @@ class CueSheet():
         "isrc"
     ]
 
+    outputFormat:str
+
     def __init__(self):
         self.rem = None
         self.performer = None
@@ -27,14 +30,13 @@ class CueSheet():
         self.file = None
         self.aformat = None
         self.tracks = []
-        self.outputFormat = None
 
         self.iterator = 0
 
     def setData(self, data):
         self.data = data.split('\n')
 
-    def __next__(self):
+    def __next__(self) -> Optional[str]:
         if self.iterator < len(self.data):
             ret = self.data[self.iterator]
             self.iterator += 1
@@ -56,37 +58,39 @@ class CueSheet():
                 # TODO: maybe os.linesep
                 rem_tmp += match.group(0) + '\n'
                 line = next(self)
-                match = re.match('^REM .(.*).$', line)
+                if line:
+                    match = re.match('^REM .(.*).$', line)
             if rem_tmp:
                 self.rem = rem_tmp.strip()
 
         for field in ["performer", "songwriter", "title"]:
-            if not getattr(self, field):
+            if line and not getattr(self, field):
                 match = re.match("^{} .(.*).$".format(field.upper()), line)
                 if match:
                     setattr(self, field, match.group(1))
                     line = next(self)
 
-        if not self.file:
+        if line and not self.file:
             match = re.match('^FILE .(.*). (.*)$', line)
             if match:
                 self.file = match.group(1)
                 self.aformat = match.group(2)
                 line = next(self)
 
-        match = re.match('^TRACK.*$', line)
-        if match:
-            cuetrack = CueTrack()
-            cuetrack.setOutputFormat(self.trackOutputFormat)
-            cuetrack.number = len(self.tracks) + 1
-            self.track(cuetrack)
-            if len(self.tracks) > 0:
-                previous = self.tracks[len(self.tracks) - 1]
-                offset = offsetToTimedelta(cuetrack.offset)
-                previosOffset = offsetToTimedelta(previous.offset)
-                previous.duration = offset - previosOffset
+        if line:
+            match = re.match('^TRACK.*$', line)
+            if match:
+                cuetrack = CueTrack()
+                cuetrack.setOutputFormat(self.trackOutputFormat)
+                cuetrack.number = len(self.tracks) + 1
+                self.track(cuetrack)
+                if len(self.tracks) > 0:
+                    previous = self.tracks[len(self.tracks) - 1]
+                    offset = offsetToTimedelta(cuetrack.offset)
+                    previosOffset = offsetToTimedelta(previous.offset)
+                    previous.duration = offset - previosOffset
 
-            self.tracks.append(cuetrack)
+                self.tracks.append(cuetrack)
 
         self.parse()
 
@@ -151,6 +155,9 @@ class CueTrack():
         "offset"
     ]
 
+    outputFormat:str
+    number:int
+
     def __init__(self):
         self.performer = None
         self.songwriter = None
@@ -160,9 +167,7 @@ class CueTrack():
         self.index = None
 
         self.offset = None
-        self.outputFormat = None
         self.duration = None
-        self.number = None
 
     def setOutputFormat(self, outputFormat):
         self.outputFormat = outputFormat

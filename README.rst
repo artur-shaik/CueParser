@@ -61,7 +61,9 @@ will output content with such template:
 will create cue file from tracklist looks like:
 
     [00:00] Artist 1 - Title 1
+
     [03:00] Artist 2 - Title 2
+
     etc...
 
 Library example

@@ -9,7 +9,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='CueParser',
-    version='1.0.0',
+    version='1.1.0',
 
     description='Simple cue file parser.',
     long_description=long_description,
@@ -19,7 +19,7 @@ setup(
     author='Artur Shaik',
     author_email='ashaihullin@gmail.com',
 
-    py_modules = ['cueparser'],
+    py_modules = ['cueparser', 'cuegen'],
     include_package_data = True,
 
     classifiers=[
@@ -33,10 +33,11 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     packages = find_packages(),
-    keywords='cue parser cdtool audio',
+    keywords='cue parser cdtool audio generator',
     entry_points={
         'console_scripts': [
             'cueparser=cueparser:main',
+            'cuegen=cuegen:main',
         ],
     },
 )

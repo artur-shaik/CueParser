@@ -28,20 +28,29 @@ class CueTitle():
 
 class CueTrack():
 
+    offset: Optional[str] = None
+
     def __init__(self) -> None:
         pass
 
     def __repr__(self) -> str:
-        return (
-        '  TRACK 01 AUDIO\n'
-        f'    PERFORMER "{self.artist}"\n'
-        f'    TITLE "{self.title}"\n'
-        f'    INDEX 01 {self.offset}')
+        if self.offset:
+            return (
+            '  TRACK 01 AUDIO\n'
+            f'    PERFORMER "{self.artist}"\n'
+            f'    TITLE "{self.title}"\n'
+            f'    INDEX 01 {self.offset}')
+        return ""
+
+    def is_parsed(self):
+        if self.offset:
+            return True
+        return False
 
     def parse(self, line: str):
         match_time = re.match(".*?(\\d{1,2}:\\d{1,2}(:\\d{1,2}|)).*", line)
         if not match_time:
-            exit("couldn't find time markers")
+            return
         
         time = None
         if match_time.group(1).count(":") == 1:
@@ -102,7 +111,8 @@ def main():
     for line in tracklist_data:
         cue_track = CueTrack()
         cue_track.parse(line)
-        print(cue_track)
+        if cue_track.is_parsed():
+            print(cue_track)
 
 
 if __name__ == "__main__":

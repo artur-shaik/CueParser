@@ -20,6 +20,10 @@ class CueTitle():
         pass
 
     def __repr__(self) -> str:
+        if not self.file and self.performer and self.title:
+            self.file = (f'{self.performer.lower().replace(" ", "_")}_-_'
+                         f'{self.title.lower().replace(" ", "_")}.'
+                         f'{self.file_ext.lower()}')
         return (
         f'PERFORMER "{self.performer}"\n'
         f'TITLE "{self.title}"\n'
@@ -107,12 +111,22 @@ def main():
     else:
         tracklist_data = [line for line in sys.stdin]
 
-    print(cue_title)
+    tracks = []
     for line in tracklist_data:
         cue_track = CueTrack()
         cue_track.parse(line)
         if cue_track.is_parsed():
-            print(cue_track)
+            tracks.append(cue_track)
+        elif ' - ' in line:
+            splitted = line.split(' - ')
+            if not cue_title.performer:
+                cue_title.performer = splitted[0].strip()
+            if not cue_title.title:
+                cue_title.title = splitted[1].strip()
+
+    print(cue_title)
+    for track in tracks:
+        print(track)
 
 
 if __name__ == "__main__":

@@ -20,14 +20,15 @@ class CueTitle():
         pass
 
     def __repr__(self) -> str:
-        if not self.file and self.performer and self.title:
-            self.file = (f'{self.performer.lower().replace(" ", "_")}_-_'
+        file = self.file
+        if not file and self.performer and self.title:
+            file = (f'{self.performer.lower().replace(" ", "_")}_-_'
                          f'{self.title.lower().replace(" ", "_")}.'
                          f'{self.file_ext.lower()}')
         return (
         f'PERFORMER "{self.performer}"\n'
         f'TITLE "{self.title}"\n'
-        f'FILE "{self.file}" {self.file_ext}')
+        f'FILE "{file}" {self.file_ext}')
     
 
 class CueTrack():

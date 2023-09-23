@@ -1,3 +1,7 @@
+.. image:: https://img.shields.io/pypi/v/CueParser.svg
+   :alt: PyPI version shields.io
+   :target: https://pypi.python.org/pypi/CueParser/
+
 CueParser
 =========
 

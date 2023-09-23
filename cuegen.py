@@ -5,7 +5,7 @@ import argparse
 import os
 import re
 import sys
-from typing import Optional
+from typing import List, Optional
 from dateutil.parser import parse
 
 
@@ -76,6 +76,27 @@ class CueTrack():
         self.title = title
 
 
+def generate(tracklist_data: List[str], cue_title: Optional[CueTitle])\
+        -> tuple[CueTitle, list[CueTrack]]:
+    if not cue_title:
+        cue_title = CueTitle()
+
+    tracks = []
+    for line in tracklist_data:
+        cue_track = CueTrack()
+        cue_track.parse(line)
+        if cue_track.is_parsed():
+            tracks.append(cue_track)
+        elif ' - ' in line:
+            splitted = line.split(' - ')
+            if not cue_title.performer:
+                cue_title.performer = splitted[0].strip()
+            if not cue_title.title:
+                cue_title.title = splitted[1].strip()
+    return (cue_title, tracks)
+
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--performer", help="PERFORMER")
@@ -111,18 +132,7 @@ def main():
     else:
         tracklist_data = [line for line in sys.stdin]
 
-    tracks = []
-    for line in tracklist_data:
-        cue_track = CueTrack()
-        cue_track.parse(line)
-        if cue_track.is_parsed():
-            tracks.append(cue_track)
-        elif ' - ' in line:
-            splitted = line.split(' - ')
-            if not cue_title.performer:
-                cue_title.performer = splitted[0].strip()
-            if not cue_title.title:
-                cue_title.title = splitted[1].strip()
+    cue_title, tracks = generate(tracklist_data, cue_title)
 
     print(cue_title)
     for track in tracks:

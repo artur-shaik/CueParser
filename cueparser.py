@@ -6,7 +6,7 @@ import re
 import sys
 import argparse
 import math
-from datetime import timedelta
+from datetime import datetime, timedelta, time
 from typing import Optional
 
 
@@ -28,6 +28,8 @@ class CueSheet():
         self.songwriter = None
         self.title = None
         self.file = None
+        self.flags = None
+        self.isrc = None
         self.aformat = None
         self.tracks = []
 
@@ -84,6 +86,10 @@ class CueSheet():
                 cuetrack.setOutputFormat(self.trackOutputFormat)
                 cuetrack.number = len(self.tracks) + 1
                 self.track(cuetrack)
+                if cuetrack.offset:
+                    splitted_offset = cuetrack.offset.split(":")
+                    td = timedelta(minutes=int(splitted_offset[0]), seconds=int(splitted_offset[1]))
+                    cuetrack.cuetime = datetime.min + td
                 if len(self.tracks) > 0:
                     previous = self.tracks[len(self.tracks) - 1]
                     offset = offsetToTimedelta(cuetrack.offset)
@@ -168,6 +174,7 @@ class CueTrack():
 
         self.offset = None
         self.duration = None
+        self.cuetime: Optional[datetime] = None
 
     def setOutputFormat(self, outputFormat):
         self.outputFormat = outputFormat
@@ -190,6 +197,10 @@ class CueTrack():
                               (minutes, self.duration.seconds - 60 * minutes))
         else:
             ret = ret.replace("%duration%", "")
+        if self.cuetime:
+            ret = ret.replace("%cuetime%", self.cuetime.strftime("%H:%M:%S"))
+        else:
+            ret = ret.replace("%cuetime%", "")
 
         return ret
 

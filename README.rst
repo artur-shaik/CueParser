@@ -58,7 +58,7 @@ Example
 will output content with such template: 
 
 * for header: %performer% - %title%\\n%file%\\n%tracks% (also can be %format%, %rem%, %songwriter%) 
-* for tracks: %performer% - %title% (also can be %offset%, %index%, %songwriter%)
+* for tracks: %performer% - %title% (also can be %cuetime%, %offset%, %index%, %songwriter%)
 
 **$ cuegen.py -f file.txt**
 

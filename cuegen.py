@@ -65,7 +65,7 @@ class CueTrack():
         line = re.sub(f"(\\[|\\(|){match_time.group(1)}(\\]|\\)|)", "", line)
         artist = None
         title = None
-        for split in line.split("-"):
+        for split in line.split(" - "):
             if not artist:
                 artist = split.strip()
             elif not title:

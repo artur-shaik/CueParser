@@ -6,7 +6,7 @@ import re
 import sys
 import argparse
 import math
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 from typing import Optional
 
 
@@ -17,7 +17,8 @@ class CueSheet():
         "songwriter",
         "title",
         "flags",
-        "isrc"
+        "isrc",
+        "file"
     ]
 
     outputFormat:str

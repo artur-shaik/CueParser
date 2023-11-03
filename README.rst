@@ -64,17 +64,20 @@ will output content with such template:
 
 will create cue file from tracklist looks like:
 
+::
+
     [00:00] Artist 1 - Title 1
-
     [03:00] Artist 2 - Title 2
-
     etc...
 
 or it can generate cuesheet from audacity labels file:
 
-    0.000000    1.000000    Artist 1 - Label 1
-    2.500000    4.200000    Artist 2 - Label 2
-    6.800000    8.000000    Artist 3 - Label 3
+::
+
+   0.000000    1.000000    Artist 1 - Label 1
+   2.500000    4.200000    Artist 2 - Label 2
+   6.800000    8.000000    Artist 3 - Label 3
+
 
 Library example
 ===============

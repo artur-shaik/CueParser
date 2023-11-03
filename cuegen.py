@@ -90,11 +90,17 @@ class CueTrack():
         title_info = info.strip().split(' - ')
         # If no - assume the label is the title
         if len(title_info) == 1:
-            artist = cue_title.performer
+            if cue_title:
+                artist = cue_title.performer
+            else:
+                artist = ""
             title = title_info[0]
-        else:
+        elif len(title_info) > 1:
             artist = title_info[0]
             title  = title_info[1]
+        else:
+            artist = ""
+            title = ""
 
         # Round the time to 2 places on ms because
         # gmtime does not handle ms

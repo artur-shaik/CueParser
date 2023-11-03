@@ -5,6 +5,7 @@ import argparse
 import os
 import re
 import sys
+import time
 from typing import List, Optional
 from dateutil.parser import parse
 
@@ -52,7 +53,15 @@ class CueTrack():
             return True
         return False
 
-    def parse(self, line: str):
+    def parse(self, line: str, cue_title: Optional[CueTitle]=None):
+        # If the line has three tabs then it's probably an
+        # Audacity label file, otherwise treat it as a timed file
+        if len(line.split('\t')) == 3:
+            self.label_parse(line, cue_title)
+        else:
+            self.timed_parse(line)
+
+    def timed_parse(self, line: str):
         match_time = re.match(".*?(\\d{1,2}:\\d{1,2}(:\\d{1,2}|)).*", line)
         if not match_time:
             return
@@ -76,6 +85,29 @@ class CueTrack():
         self.artist = artist
         self.title = title
 
+    def label_parse(self, line: str, cue_title: Optional[CueTitle]=None):
+        start, end, info = line.split('\t')
+        title_info = info.strip().split(' - ')
+        # If no - assume the label is the title
+        if len(title_info) == 1:
+            artist = cue_title.performer
+            title = title_info[0]
+        else:
+            artist = title_info[0]
+            title  = title_info[1]
+
+        # Round the time to 2 places on ms because
+        # gmtime does not handle ms
+        seconds, ms = str(round(float(start), 2)).split('.')
+        # Get h,m,s from the rounded time. This will
+        # break if the track is longer than 24 hours long. Not very likely
+        t = time.gmtime(int(seconds))
+            
+        self.offset = (f'{(60 * t.tm_hour) + t.tm_min:02}:'
+                       f'{t.tm_sec:02}:'
+                       f'{ms:02}')
+        self.artist = artist
+        self.title = title
 
 def generate(tracklist_data: List[str], cue_title: Optional[CueTitle])\
         -> tuple[CueTitle, list[CueTrack]]:

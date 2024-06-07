@@ -33,6 +33,7 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     packages = find_packages(),
+    install_requires = [ "python-dateutil" ],
     keywords='cue parser cdtool audio generator',
     entry_points={
         'console_scripts': [

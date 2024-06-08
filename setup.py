@@ -9,7 +9,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='CueParser',
-    version='1.3.1',
+    version='1.3.2',
 
     description='Simple cue file parser.',
     long_description=long_description,
@@ -33,6 +33,7 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     packages = find_packages(),
+    install_requires = [ "python-dateutil" ],
     keywords='cue parser cdtool audio generator',
     entry_points={
         'console_scripts': [

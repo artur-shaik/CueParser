@@ -18,7 +18,8 @@ class CueSheet():
         "title",
         "flags",
         "isrc",
-        "file"
+        "file",
+        "rem",
     ]
 
     outputFormat:str
